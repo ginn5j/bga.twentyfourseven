@@ -257,9 +257,6 @@ class TwentyFourSeven extends Table
         $result['board'] = self::getObjectListFromDB( "SELECT board_x x, board_y y, board_value value
                                                        FROM board
                                                        WHERE board_value IS NOT NULL" );
-        // Playable spaces on the board
-        $result['spaces'] = self::getPlayableSpaces();
-
         // Tallies for both players stats
         $result['tallies'] = self::getPlayersTally();
 
@@ -314,7 +311,7 @@ class TwentyFourSeven extends Table
             Playables - Empty spaces adjacent to tiles on the board (value > 0)
             are playable. If none exist, the game is over and progression is 100.
         */
-        $playables = self::getPlayableSpaces();
+        $playables = self::getPlayables();
         if( count( $playables ) == 0 ) return 100;
 
         /*
@@ -485,7 +482,7 @@ class TwentyFourSeven extends Table
         Get the playable spaces on the board and the max tile value that can 
         be played.
     */
-    function getPlayableSpaces()
+    function getPlayables()
     {
         // Get the playable spaces: empty spaces adjacent to a tile (value > 0)
         $playables = self::getObjectListFromDB( "SELECT E.board_x x, E.board_y y
@@ -556,7 +553,7 @@ class TwentyFourSeven extends Table
         // The smallest tile in hand is the first element of the array since it is sorted by card_type_arg.
         $smallest_tile_value = $tiles_in_hand[ 0 ][ "type_arg" ];
         // See if this tile can be played on the board
-        $playables = self::getPlayableSpaces();
+        $playables = self::getPlayables();
         foreach( $playables as ["x" => $x, "y" => $y, "max" => $max ] )
         {
             if( $smallest_tile_value <= $max )
@@ -664,7 +661,7 @@ class TwentyFourSeven extends Table
     {
         $time_out_spaces = array();
 
-        $playables = self::getPlayableSpaces();
+        $playables = self::getPlayables();
         foreach( $playables as ["x" => $x, "y" => $y, "max" => $max] )
         {
             if( $max < 1 )
@@ -1113,7 +1110,7 @@ class TwentyFourSeven extends Table
     function argPlayerTurn()
     {
         return array(
-            'playableSpaces' => self::getPlayableSpaces()
+            'playables' => self::getPlayables()
         );
     }
 
@@ -1130,7 +1127,7 @@ class TwentyFourSeven extends Table
          * Playables - Empty spaces adjacent to tiles on the board (value > 0)
          * are playable. If none exist, the game is over.
          */
-        $playables = self::getPlayableSpaces();
+        $playables = self::getPlayables();
         if( count( $playables ) == 0 )
         {
             /*

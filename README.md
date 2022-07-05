@@ -14,7 +14,6 @@ List of ideas to implement prior to alpha release.
     - Highlight combos scored in the client
 - Add tile play confirmation to the play tile flow (click tile to play, click space to play, confirm/cancel action)
 - Highlight space clicked on for tile play (instead of playing the tile)
-- List combos scored in the turn summary log (along the right hand side under player boards/panel)?
 - Standardize all the ids, classes, etc so there is no concern about namespace collisions (i.e., prefix everything with tf7_)
 
 ### PHP
@@ -33,3 +32,4 @@ Basic implementation of the game with rules enforcement complete. This is a list
 - Use the array of combos to create the tally
 - Add max tile value that can be played on each playable space
 - Mark playable spaces with green check or red X when a tile is selected based on whether it will ‘fit’ in the space
+- List combos scored in the turn summary log (along the right hand side under player boards/panel)

@@ -171,7 +171,7 @@ function (dojo, declare) {
 
         onEnterPlayerTurn: function( args )
         {
-            this.updatePlayables( args.args.playableSpaces );
+            this.updatePlayables( args.args.playables );
         },
 
         // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
