@@ -407,13 +407,10 @@ function (dojo, declare) {
             // Clear the playables from the board
             this.clearPlayables();
 
-            // Add the played tile to the board
-            this.addPieceOnBoard( notif.args.x, notif.args.y, notif.args.value, notif.args.player_id );
-
-            // Place any time out stones
-            for( const space of notif.args.time_out_spaces )
+            // Place new pieces on the board (played tile and any time out stones)
+            for( const piece of notif.args.new_pieces )
             {
-                this.addPieceOnBoard( space.x, space.y, space.value, notif.args.player_id );
+                this.addPieceOnBoard( piece.x, piece.y, piece.value, notif.args.player_id );
             }
 
             console.log(notif.args);

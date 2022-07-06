@@ -657,9 +657,9 @@ class TwentyFourSeven extends Table
         Block any playable space with a time out stone if playing a tile with
         the value of 1 would result in an invalid line (sum > 24).
     */
-    function markTimeOutSpaces()
+    function markTimeOuts()
     {
-        $time_out_spaces = array();
+        $time_outs = array();
 
         $playables = self::getPlayables();
         foreach( $playables as ["x" => $x, "y" => $y, "max" => $max] )
@@ -667,12 +667,12 @@ class TwentyFourSeven extends Table
             if( $max < 1 )
             {
                 self::DbQuery( "UPDATE board SET board_value = 0 WHERE board_x = $x AND board_y = $y" );
-                $time_out_spaces[] = [ "x" => $x, "y" => $y, "value" => 0 ];
+                $time_outs[] = [ "x" => $x, "y" => $y, "value" => 0 ];
             }
         }
         unset( $x, $y, $max );
 
-        return $time_out_spaces;
+        return $time_outs;
     }
 
     /*
@@ -967,6 +967,8 @@ class TwentyFourSeven extends Table
             $can_play_tile )
         {
             // This move is possible!
+            $played = array();
+            $played[] = [ "x" => $x, "y" => $y, "value" => $played_tile_value ];
 
             /*
              * Update the board at (x,y) with the value of the tile
@@ -984,7 +986,7 @@ class TwentyFourSeven extends Table
              * are no longer playable (placing any tile on the space would
              * result in a line through the space adding up to more than 24).
              */
-            $time_out_spaces = self::markTimeOutSpaces();
+            $time_outs = self::markTimeOuts();
 
             /*
                 Score the space. Get all the lines passing through the space
@@ -1030,7 +1032,7 @@ class TwentyFourSeven extends Table
                 $num_combos_scored = 0;
                 $scoring_combos = "(";
                 // at least one scorable combo was played
-                foreach ( $score[ "tally" ] as $ind => $tally )
+                foreach ( $score[ "tally" ] as $i => $tally )
                 {
                     if ( $tally > 0 ) 
                     {   $combo_scored = "";
@@ -1038,14 +1040,13 @@ class TwentyFourSeven extends Table
                         {
                             $combo_scored .= ", ";
                         }
-                        $combo_description = self::COMBO_PROPS[ self::SCORE_TALLY_KEYS[ $ind ] ][ "description" ];
+                        $combo_description = self::COMBO_PROPS[ self::SCORE_TALLY_KEYS[ $i ] ][ "description" ];
                         $combo_scored .= $combo_description . " x " . $tally;
                         $scoring_combos .= $combo_scored;
                         $num_combos_scored += 1;
                     }
                 }
-                unset( $ind );
-                unset( $tally );
+                unset( $i, $tally );
                 $scoring_combos .= ")";
             }
 
@@ -1070,7 +1071,7 @@ class TwentyFourSeven extends Table
                 'y' => $y,
                 'scoring_combos' => $scoring_combos,
                 'score' => $score,
-                'time_out_spaces' => $time_out_spaces
+                'new_pieces' => [...$played, ...$time_outs]
             ) );
 
             /*
