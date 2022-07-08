@@ -33,6 +33,17 @@ class TwentyFourSeven extends Table
     private const SET_OF_4  = "set-of-4";
     private const BONUS     = "bonus";
 
+    private const STAT_SUM_OF_7  = "tally_sum_of_7";
+    private const STAT_SUM_OF_24 = "tally_sum_of_24";
+    private const STAT_RUN_OF_3  = "tally_run_of_3";
+    private const STAT_RUN_OF_4  = "tally_run_of_4";
+    private const STAT_RUN_OF_5  = "tally_run_of_5";
+    private const STAT_RUN_OF_6  = "tally_run_of_6";
+    private const STAT_SET_OF_3  = "tally_set_of_3";
+    private const STAT_SET_OF_4  = "tally_set_of_4";
+    private const STAT_BONUS     = "tally_bonus";
+    private const STAT_TURN_NBR  = "turns_number";
+
     private const RUN = "Run";
     private const SET = "Set";
 
@@ -54,41 +65,29 @@ class TwentyFourSeven extends Table
         ]
     ];
 
-    private const COMBO_PROPS = [
-        self::SUM_OF_7  => [ "description" => "Sum of 7",  "minutes" => 20 ],
-        self::SUM_OF_24 => [ "description" => "Sum of 24", "minutes" => 40 ],
-        self::RUN_OF_3  => [ "description" => "Run of 3",  "minutes" => 30 ],
-        self::RUN_OF_4  => [ "description" => "Run of 4",  "minutes" => 40 ],
-        self::RUN_OF_5  => [ "description" => "Run of 5",  "minutes" => 50 ],
-        self::RUN_OF_6  => [ "description" => "Run of 6",  "minutes" => 60 ],
-        self::SET_OF_3  => [ "description" => "Set of 3",  "minutes" => 50 ],
-        self::SET_OF_4  => [ "description" => "Set of 4",  "minutes" => 60 ],
-        self::BONUS     => [ "description" => "Bonus",     "minutes" => 60 ]
+    private const COMBINATIONS = [
+        self::SUM_OF_7  => [ "description" => "Sum of 7",  "minutes" => 20, "statistic" => self::STAT_SUM_OF_7 ],
+        self::SUM_OF_24 => [ "description" => "Sum of 24", "minutes" => 40, "statistic" => self::STAT_SUM_OF_24 ],
+        self::RUN_OF_3  => [ "description" => "Run of 3",  "minutes" => 30, "statistic" => self::STAT_RUN_OF_3 ],
+        self::RUN_OF_4  => [ "description" => "Run of 4",  "minutes" => 40, "statistic" => self::STAT_RUN_OF_4 ],
+        self::RUN_OF_5  => [ "description" => "Run of 5",  "minutes" => 50, "statistic" => self::STAT_RUN_OF_5 ],
+        self::RUN_OF_6  => [ "description" => "Run of 6",  "minutes" => 60, "statistic" => self::STAT_RUN_OF_6 ],
+        self::SET_OF_3  => [ "description" => "Set of 3",  "minutes" => 50, "statistic" => self::STAT_SET_OF_3 ],
+        self::SET_OF_4  => [ "description" => "Set of 4",  "minutes" => 60, "statistic" => self::STAT_SET_OF_4 ],
+        self::BONUS     => [ "description" => "Bonus",     "minutes" => 60, "statistic" => self::STAT_BONUS ]
     ];
 
-    private const STAT_KEYS = [
-        'turns_number',
-        'tally_sum_of_7',
-        'tally_sum_of_24',
-        'tally_run_of_3',
-        'tally_run_of_4',
-        'tally_run_of_5',
-        'tally_run_of_6',
-        'tally_set_of_3',
-        'tally_set_of_4',
-        'tally_bonus'
-    ];
-
-    private const SCORE_TALLY_KEYS = [
-        self::SUM_OF_7,
-        self::SUM_OF_24,
-        self::BONUS,
-        self::RUN_OF_3,
-        self::RUN_OF_4,
-        self::RUN_OF_5,
-        self::RUN_OF_6,
-        self::SET_OF_3,
-        self::SET_OF_4
+    private const STATS = [
+        self::STAT_TURN_NBR,
+        self::STAT_SUM_OF_7,
+        self::STAT_SUM_OF_24,
+        self::STAT_RUN_OF_3,
+        self::STAT_RUN_OF_4,
+        self::STAT_RUN_OF_5,
+        self::STAT_RUN_OF_6,
+        self::STAT_SET_OF_3,
+        self::STAT_SET_OF_4,
+        self::STAT_BONUS
     ];
 
 	function __construct( )
@@ -167,25 +166,17 @@ class TwentyFourSeven extends Table
         self::initStat( 'table', 'turns_number', 0 );
 
         // Player stats
-        foreach( $players as $player_id => $player )
+        foreach( self::STATS as $stat )
         {
-            self::initStat( 'player', 'turns_number', 0, $player_id );
-            self::initStat( 'player', 'tally_sum_of_7', 0, $player_id );
-            self::initStat( 'player', 'tally_sum_of_24', 0, $player_id );
-            self::initStat( 'player', 'tally_run_of_3', 0, $player_id );
-            self::initStat( 'player', 'tally_run_of_4', 0, $player_id );
-            self::initStat( 'player', 'tally_run_of_5', 0, $player_id );
-            self::initStat( 'player', 'tally_run_of_6', 0, $player_id );
-            self::initStat( 'player', 'tally_set_of_3', 0, $player_id );
-            self::initStat( 'player', 'tally_set_of_4', 0, $player_id );
-            self::initStat( 'player', 'tally_bonus', 0, $player_id );
+            self::initStat( 'player', $stat, 0 );
         }
-        unset( $player );
+        unset( $stat );
 
         // Create tiles
         $tiles = array();
-        for ($value = 1; $value <= 10; $value ++) {
-            $tiles[] = array('type' => 'tile', 'type_arg' => $value, 'nbr' => 4);
+        for( $value = 1; $value <= 10; $value++ ) 
+        {
+            $tiles[] = [ 'type' => 'tile', 'type_arg' => $value, 'nbr' => 4 ];
         }
         $this->tiles->createCards( $tiles, 'deck' );
 
@@ -283,14 +274,14 @@ class TwentyFourSeven extends Table
 
         foreach( $player_ids as $player_id )
         {
-            foreach ( self::STAT_KEYS as $stat )
+            foreach( self::STATS as $stat )
             {
                 $player_stats[$stat] = self::getStat( $stat, $player_id );
             }
             $result[$player_id] = $player_stats;
+            unset( $stat );
         }
         unset( $player_id );
-        unset( $stat );
 
         return $result;
     }
@@ -838,21 +829,20 @@ class TwentyFourSeven extends Table
     {
         /*
             Tally
-            0 - Sum of 7
-            1 - Sum of 24
-            2 - 24/7 Bonus
-            3 - Run of 3
-            4 - Run of 4
-            5 - Run of 5
-            6 - Run of 6
-            7 - Set of 3
-            8 - Set of 4
+
+            The tally is an array indexed by the combination key (i.e., 
+            self::SUM_OF_7, etc).
         */
         $tally = array();
-        for( $i=0; $i<9; $i++ )
-        {
-            $tally[$i] = 0;
-        }
+
+        /*
+            Double Time
+
+            When the space being scored (i.e., the position on the board where
+            the tile was played) is a double time space, set the double time 
+            factor to 2.
+        */
+        $double_time_factor = ( self::isDoubleTime( $x, $y ) ? 2 : 1 );
 
         /*
             Get the combos at (x,y) and tally each combo
@@ -860,36 +850,9 @@ class TwentyFourSeven extends Table
         $combos = self::findCombos( $x, $y );
         foreach( $combos as $type => $items )
         {
-            switch( $type )
-            {
-                case self::SUM_OF_7 : $tally[ 0 ] += count( $items ); break;
-                case self::SUM_OF_24 : $tally[ 1 ] += count( $items ); break;
-                case self::RUN_OF_3 : $tally[ 3 ] += count( $items ); break;
-                case self::RUN_OF_4 : $tally[ 4 ] += count( $items ); break;
-                case self::RUN_OF_5 : $tally[ 5 ] += count( $items ); break;
-                case self::RUN_OF_6 : $tally[ 6 ] += count( $items ); break;
-                case self::SET_OF_3 : $tally[ 7 ] += count( $items ); break;
-                case self::SET_OF_4 : $tally[ 8 ] += count( $items ); break;
-                case self::BONUS : $tally[ 2 ] += count( $items ); break;
-            }
+            $tally[ $type ] = count( $items ) * $double_time_factor;
         }
-        unset( $type );
-        unset( $items );
-
-        /*
-            Double Time
-
-            When the space being scored (i.e., the position on the board where
-            the tile was played) is a double time space, double all the
-            tallies (i.e., twice as many minutes).
-        */
-        if( self::isDoubleTime( $x, $y ) )
-        {
-            for( $i=0; $i<9; $i++ )
-            {
-                $tally[$i] *= 2;
-            }
-        }
+        unset( $type, $items );
 
         /*
             Calculate minutes
@@ -897,16 +860,12 @@ class TwentyFourSeven extends Table
             Minutes are simply the sum of the tallies multiplied by their
             minute values (Sum of 7 == 20, Sum of 24 == 40, etc).
         */
-        $minutes =
-            ($tally[0] * 20) + // Sum of 7 score
-            ($tally[1] * 40) + // Sum of 24 score
-            ($tally[2] * 60) + // Bonus score
-            ($tally[3] * 30) + // Run of 3 score
-            ($tally[4] * 40) + // Run of 4 score
-            ($tally[5] * 50) + // Run of 5 score
-            ($tally[6] * 60) + // Run of 6 score
-            ($tally[7] * 50) + // Set of 3 score
-            ($tally[8] * 60);  // Set of 4 score
+        $minutes = 0;
+        foreach( $tally as $type => $tally_count )
+        {
+            $minutes += $tally_count * self::COMBINATIONS[ $type ][ 'minutes' ];
+        }
+        unset( $type, $tally_count );
 
         $score = array();
         $score['tally'] = $tally;
@@ -1014,15 +973,11 @@ class TwentyFourSeven extends Table
 
             // Player stats
             self::incStat( 1, 'turns_number', $player_id );
-            self::incStat( $score[ "tally" ][ 0 ], 'tally_sum_of_7', $player_id );
-            self::incStat( $score[ "tally" ][ 1 ], 'tally_sum_of_24', $player_id );
-            self::incStat( $score[ "tally" ][ 3 ], 'tally_run_of_3', $player_id );
-            self::incStat( $score[ "tally" ][ 4 ], 'tally_run_of_4', $player_id );
-            self::incStat( $score[ "tally" ][ 5 ], 'tally_run_of_5', $player_id );
-            self::incStat( $score[ "tally" ][ 6 ], 'tally_run_of_6', $player_id );
-            self::incStat( $score[ "tally" ][ 7 ], 'tally_set_of_3', $player_id );
-            self::incStat( $score[ "tally" ][ 8 ], 'tally_set_of_4', $player_id );
-            self::incStat( $score[ "tally" ][ 2 ], 'tally_bonus', $player_id );
+            foreach( $score[ 'tally' ] as $type => $tally_count )
+            {
+                self::incStat( $tally_count, self::COMBINATIONS[ $type ][ 'statistic' ], $player_id );
+            }
+            unset( $type, $tally_count );
 
             /*
              * Create a string of the combos the player scored if any
@@ -1032,21 +987,22 @@ class TwentyFourSeven extends Table
                 $num_combos_scored = 0;
                 $scoring_combos = "(";
                 // at least one scorable combo was played
-                foreach ( $score[ "tally" ] as $i => $tally )
+                foreach( $score[ "tally" ] as $type => $tally_count )
                 {
-                    if ( $tally > 0 ) 
-                    {   $combo_scored = "";
-                        if ( $num_combos_scored > 0)
+                    if( $tally_count > 0 ) 
+                    {   
+                        $combo_scored = "";
+                        if( $num_combos_scored > 0 )
                         {
                             $combo_scored .= ", ";
                         }
-                        $combo_description = self::COMBO_PROPS[ self::SCORE_TALLY_KEYS[ $i ] ][ "description" ];
-                        $combo_scored .= $combo_description . " x " . $tally;
+                        $combo_description = self::COMBINATIONS[ $type ][ "description" ];
+                        $combo_scored .= $combo_description . " x " . $tally_count;
                         $scoring_combos .= $combo_scored;
-                        $num_combos_scored += 1;
+                        $num_combos_scored++;
                     }
                 }
-                unset( $i, $tally );
+                unset( $type, $tally_count );
                 $scoring_combos .= ")";
             }
 
