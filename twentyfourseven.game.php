@@ -581,19 +581,28 @@ class TwentyFourSeven extends Table
 
                 if( $sum == 7 ) // Sum of 7 Combo
                 {
-                    $combo = $line;
+                    $combo = [
+                        'description' => self::COMBINATIONS[ self::SUM_OF_7 ][ 'description' ],
+                        'tiles' => $line
+                    ];
                     $combos[ self::SUM_OF_7 ][] = $combo;
                     unset( $combo );
                 }
                 if( $sum == 24 ) // Sum of 24 Combo
                 {
-                    $combo = $line;
+                    $combo = [
+                        'description' => self::COMBINATIONS[ self::SUM_OF_24 ][ 'description' ],
+                        'tiles' => $line
+                    ];
                     $combos[ self::SUM_OF_24 ][] = $combo;
                     unset( $combo );
                 }
                 if( $sum == 24 && $length == 7 )
                 {
-                    $combo = $line;
+                    $combo = [
+                        'description' => self::COMBINATIONS[ self::BONUS ][ 'description' ],
+                        'tiles' => $line
+                    ];
                     $combos[ self::BONUS ][] = $combo;
                     unset( $combo );
                 }
@@ -606,7 +615,10 @@ class TwentyFourSeven extends Table
                 {
                     foreach( $items as $item )
                     {
-                        $combo = $item;
+                        $combo = [
+                            'description' => self::COMBINATIONS[ $type ][ 'description' ],
+                            'tiles' => $item
+                        ];
                         $combos[ $type ][] = $combo;
                         unset( $combo );
                     }
@@ -632,10 +644,14 @@ class TwentyFourSeven extends Table
         {
             foreach( $combo24s as $combo24 )
             {
-                $combo = $combo24;
-                array_push( $combo, ...$combo7 );
+                $tiles = $combo24[ 'tiles' ];
+                array_push( $tiles, ...$combo7[ 'tiles' ] );
+                $combo = [
+                    'description' => self::COMBINATIONS[ self::BONUS ][ 'description' ],
+                    'tiles' => $tiles
+                ];
                 $combos[ self::BONUS ][] = $combo;
-                unset( $combo );
+                unset( $tiles, $combo );
             }
             unset( $combo24 );
         }

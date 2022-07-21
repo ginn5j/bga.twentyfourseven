@@ -29,6 +29,7 @@
     <div id="tf7_board">
 
         <div id="board">
+            <div id="combo_name" class="combo_name combo_name_hide"></div>
             <!-- BEGIN space -->
                 <div id="space_{X}_{Y}" class="space" style="left: {LEFT}px; top: {TOP}px;"></div>
             <!-- END space -->

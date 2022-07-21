@@ -32,6 +32,8 @@ function (dojo, declare) {
             this.tilewidth = 75;
             this.tileheight = 105;
             this.playables = [];
+            this.combos = [];
+            this.animations = 0;
         },
 
         /*
@@ -92,15 +94,18 @@ function (dojo, declare) {
                 }
             }
 
-            // Listen for click events on the board
             /*
-                'this' will not be the 24/7 JS instance when onPlayTile is
-                called so it needs to be captured when the listener is
-                registered and passed to the function so it has access to
-                other properties and functions during it's execution.
+                When an event is handled, the this reference will not be this 
+                object. Capture this as a variable so it can be used and 
+                passed to the event handler callbacks.
             */
             var self = this;
+
+            // Listen for click events on the board
             document.querySelector( '#board' ).addEventListener( 'click', function( event ) { self.onPlayTile( event, self ); } );
+
+            // Listen for animationend events on the board
+            document.querySelector( '#board' ).addEventListener( 'animationend', function( event ) { self.onAnimationEnd( event, self ); } );
 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
@@ -241,6 +246,79 @@ function (dojo, declare) {
             this.playables = [];
         },
 
+        highlightCombos: function( args )
+        {
+            for( const type in args.score.combos )
+            {
+                for( const combo of args.score.combos[ type ] )
+                {
+                    this.combos.push({
+                        "x" : args.x,
+                        "y" : args.y,
+                        "player_id" : args.player_id,
+                        "description" : combo.description,
+                        "tiles" : combo.tiles
+                    });
+                }
+            }
+            this.combos.reverse();
+
+            // Kick off highlighting the combos
+            this.highlightNextCombo();
+        },
+
+        highlightNextCombo: function()
+        {
+            // Remove current highlighting
+            dojo.query( ".highlight_combo" ).removeClass( 'highlight_combo' );
+            dojo.addClass( "combo_name", "combo_name_hide" );
+            dojo.empty( "combo_name" );
+            // Force a reflow
+            document.querySelector( '#board' ).offsetHeight;
+
+            // Pop next combo
+            var combo = this.combos.pop();
+
+            // Highlight combo
+            if( combo !== undefined )
+            {
+                dojo.place( "<span>"+combo.description+"</span>", "combo_name" );
+                dojo.removeClass( "combo_name", "combo_name_hide" );
+                for( const tile of combo.tiles )
+                {
+                    // If the tile doesn't have the highlight, add it (same tile can appear twice on bonus combos)
+                    if( !dojo.hasClass( "tile_"+tile.x+"_"+tile.y, "highlight_combo" ) )
+                    {
+                        this.animations++;
+                        dojo.addClass( "tile_"+tile.x+"_"+tile.y, "highlight_combo" );
+                    }
+                }
+            }
+        },
+
+        /*
+            Handle animation end (highlighting a scored combination)
+
+            Since this will be called from an event handler, we need to pass
+            along the game instance when registering the handler.
+        */
+        onAnimationEnd: function( event, game )
+        {
+            // Stop propagation and prevent any default handling of the event
+            event.stopPropagation();
+            event.preventDefault();
+
+            console.log( "In onAnimationEnd" );
+            console.log( event );
+
+            game.animations--;
+            if (game.animations == 0) 
+            {
+                // Start the next combo highlight
+                game.highlightNextCombo();
+            }
+        },
+    
         /*
             Indicate whether the selected tile can be played on any of the 
             playable spaces.
@@ -412,6 +490,9 @@ function (dojo, declare) {
             {
                 this.addPieceOnBoard( piece.x, piece.y, piece.value, notif.args.player_id );
             }
+
+            // Highlight any combos scored
+            this.highlightCombos( notif.args );
 
             console.log(notif.args);
         },
