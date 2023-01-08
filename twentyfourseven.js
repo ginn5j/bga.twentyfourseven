@@ -53,9 +53,6 @@ function (dojo, declare) {
         {
             console.log( "Starting game setup" );
 
-            //TODO: REMOVE
-            console.log( gamedatas );
-
             // Setting up player boards
             for( var player_id in gamedatas.players )
             {
@@ -123,9 +120,6 @@ function (dojo, declare) {
         onEnteringState: function( stateName, args )
         {
             console.log( 'Entering state: '+stateName );
-            //TODO: REMOVE
-            console.log( args );
-            //TODO: REMOVE
 
             switch( stateName )
             {
@@ -257,6 +251,7 @@ function (dojo, declare) {
                         "y" : args.y,
                         "player_id" : args.player_id,
                         "description" : combo.description,
+                        "minutes" : combo.minutes,
                         "tiles" : combo.tiles
                     });
                 }
@@ -271,8 +266,8 @@ function (dojo, declare) {
         {
             // Remove current highlighting
             dojo.query( ".highlight_combo" ).removeClass( 'highlight_combo' );
-            dojo.addClass( "combo_name", "combo_name_hide" );
-            dojo.empty( "combo_name" );
+            dojo.query( ".combo_score" ).forEach( dojo.destroy );
+
             // Force a reflow
             document.querySelector( '#board' ).offsetHeight;
 
@@ -282,8 +277,6 @@ function (dojo, declare) {
             // Highlight combo
             if( combo !== undefined )
             {
-                dojo.place( "<span>"+combo.description+"</span>", "combo_name" );
-                dojo.removeClass( "combo_name", "combo_name_hide" );
                 for( const tile of combo.tiles )
                 {
                     // If the tile doesn't have the highlight, add it (same tile can appear twice on bonus combos)
@@ -293,12 +286,17 @@ function (dojo, declare) {
                         dojo.addClass( "tile_"+tile.x+"_"+tile.y, "highlight_combo" );
                     }
                 }
+                var t = "tile_"+combo.x+"_"+combo.y;
+                var r = dojo.place(this.format_string('<div class="combo_score fade_combo">+${score}<br>${description}</div>', { score: combo.minutes, description: combo.description }), t);
+                this.placeOnObject(r, t);
+                dojo.style(r, "color", "#" + this.gamedatas.players[combo.player_id]["color"]);
+                dojo.addClass(r, "combo_anim");
+                this.animations++;
             }
         },
 
         /*
             Handle animation end (highlighting a scored combination)
-
             Since this will be called from an event handler, we need to pass
             along the game instance when registering the handler.
         */
@@ -308,9 +306,6 @@ function (dojo, declare) {
             event.stopPropagation();
             event.preventDefault();
 
-            console.log( "In onAnimationEnd" );
-            console.log( event );
-
             game.animations--;
             if (game.animations == 0) 
             {
@@ -318,7 +313,7 @@ function (dojo, declare) {
                 game.highlightNextCombo();
             }
         },
-    
+        
         /*
             Indicate whether the selected tile can be played on any of the 
             playable spaces.
@@ -357,6 +352,35 @@ function (dojo, declare) {
                 this.clearPlayables();
             }
         },
+
+        removePieceFromBoard: function( x, y, value )
+        {
+            if (value > 0) { // Tile
+                dojo.destroy( 'tile_'+x+'_'+y );
+            } else { // Time out stone
+                dojo.destroy( 'stone_'+x+'_'+y );
+            }
+        },
+
+        startActionTimer: function(e, t) {
+            var n = document.getElementById(e),
+                i = null,
+                r = n.innerHTML,
+                a = t,
+                l = function() {
+                    var t = document.getElementById(e);
+                    if (null == t) window.clearInterval(i);
+                    else if (a-- > 1) t.innerHTML = r + " (" + a + ")";
+                    else {
+                        window.clearInterval(i);
+                        t.click()
+                    }
+                };
+            l();
+            i = window.setInterval((function() {
+                return l()
+            }), 1e3);
+		},
 
         /*
             Update the list of playables and show the playable spaces on the 
@@ -424,23 +448,48 @@ function (dojo, declare) {
                 var x = coords[1];
                 var y = coords[2];
 
-                console.log('Playable space ('+x+','+y+') clicked!');
-
                 if( game.checkAction( 'playTile' ) )    // Check that this action is possible at this moment
                 {
                     // Get the selected tiles (should only be 1)
                     var tiles = game.playerHand.getSelectedItems();
 
-                    if( tiles.length == 1 ){
-                        console.log('Tile type: ' + tiles[0].type + ', id: ' + tiles[0].id + ' played!');
+                    if( tiles.length == 1 )
+                    {
+                        // Get the tile played
+                        var tile = tiles[0];
 
-                        // Exactly 1 tile selected, tell the server to process the played tile
-                        game.ajaxcall( "/twentyfourseven/twentyfourseven/playTile.html", {
-                            lock:true,
-                            x:x,
-                            y:y,
-                            tileId:tiles[0].id
-                        }, game, function( result ) {} );
+                        // Put it on the board
+                        game.addPieceOnBoard( x, y, tile.type, game.player_id );
+                        // TODO: REMOVE TILE FROM PLAYER'S HAND
+
+                        /*
+                            Add action buttons to confirm or undo the played tile
+                            and start a countdown timer to auto-confirm the play 
+                            if the player does nothing.
+                        */
+                        game.addActionButton("confirmTile_button", _("Confirm"), (function() {
+                            /*
+                                Remove the action buttons and submit the played tile action
+                            */
+                            game.removeActionButtons();
+                            // Exactly 1 tile selected and confirmed, tell the server to process the played tile
+                            game.ajaxcall( "/twentyfourseven/twentyfourseven/playTile.html", {
+                                lock:true,
+                                x:x,
+                                y:y,
+                                tileId:tile.id
+                            }, game, function( result ) {} );
+                        }));
+                        game.addActionButton("undoTile_button", _("Undo tile played"), (function() {
+                            /*
+                                Remove the action buttons and return the tile to the 
+                                player's hand.
+                            */
+                            game.removeActionButtons();
+                            game.removePieceFromBoard( x, y, tile.type );
+                            // TODO: ADD TILE BACK TO PLAYER'S HAND
+                        }), null, null, "gray");
+                        game.startActionTimer("confirmTile_button", 5)
                     }
                     else
                     {
@@ -488,13 +537,19 @@ function (dojo, declare) {
             // Place new pieces on the board (played tile and any time out stones)
             for( const piece of notif.args.new_pieces )
             {
-                this.addPieceOnBoard( piece.x, piece.y, piece.value, notif.args.player_id );
+                /*
+                    Only add the piece if it is a stone (0) or when the current 
+                    player is not the player that played the tile (because we've 
+                    already placed the tile for the player that played the tile).
+                */
+                if( piece.value <= 0 || this.player_id != notif.args.player_id )
+                {
+                    this.addPieceOnBoard( piece.x, piece.y, piece.value, notif.args.player_id );
+                }
             }
 
             // Highlight any combos scored
             this.highlightCombos( notif.args );
-
-            console.log(notif.args);
         },
 
         /*
@@ -506,8 +561,6 @@ function (dojo, declare) {
             {
                 var newScore = notif.args.scores[ player_id ];
                 var newTally = notif.args.tallies[ player_id ];
-                console.log(player_id);
-                console.log(newTally);
                 this.scoreCtrl[ player_id ].toValue( newScore );
             }
         },

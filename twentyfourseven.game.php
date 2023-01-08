@@ -583,6 +583,7 @@ class TwentyFourSeven extends Table
                 {
                     $combo = [
                         'description' => self::COMBINATIONS[ self::SUM_OF_7 ][ 'description' ],
+                        'minutes' => self::COMBINATIONS[ self::SUM_OF_7 ][ 'minutes' ],
                         'tiles' => $line
                     ];
                     $combos[ self::SUM_OF_7 ][] = $combo;
@@ -592,6 +593,7 @@ class TwentyFourSeven extends Table
                 {
                     $combo = [
                         'description' => self::COMBINATIONS[ self::SUM_OF_24 ][ 'description' ],
+                        'minutes' => self::COMBINATIONS[ self::SUM_OF_24 ][ 'minutes' ],
                         'tiles' => $line
                     ];
                     $combos[ self::SUM_OF_24 ][] = $combo;
@@ -601,6 +603,7 @@ class TwentyFourSeven extends Table
                 {
                     $combo = [
                         'description' => self::COMBINATIONS[ self::BONUS ][ 'description' ],
+                        'minutes' => self::COMBINATIONS[ self::BONUS ][ 'minutes' ],
                         'tiles' => $line
                     ];
                     $combos[ self::BONUS ][] = $combo;
@@ -617,6 +620,7 @@ class TwentyFourSeven extends Table
                     {
                         $combo = [
                             'description' => self::COMBINATIONS[ $type ][ 'description' ],
+                            'minutes' => self::COMBINATIONS[ $type ][ 'minutes' ],
                             'tiles' => $item
                         ];
                         $combos[ $type ][] = $combo;
@@ -648,6 +652,7 @@ class TwentyFourSeven extends Table
                 array_push( $tiles, ...$combo7[ 'tiles' ] );
                 $combo = [
                     'description' => self::COMBINATIONS[ self::BONUS ][ 'description' ],
+                    'minutes' => self::COMBINATIONS[ self::BONUS ][ 'minutes' ],
                     'tiles' => $tiles
                 ];
                 $combos[ self::BONUS ][] = $combo;
@@ -867,6 +872,15 @@ class TwentyFourSeven extends Table
         foreach( $combos as $type => $items )
         {
             $tally[ $type ] = count( $items ) * $double_time_factor;
+            /*
+                Apply the double time factor to the minutes on each combo scored
+            */
+            foreach( $items as $i => ['description' => $description, 'minutes' => $minutes, 'tiles' => $tiles] )
+            {
+                $combos[$type][$i]['minutes'] = $minutes * $double_time_factor;
+                $combos[$type][$i]['description'] = $description . ($double_time_factor > 1 ? " x$double_time_factor" : "");
+            }
+            unset( $i, $description, $minutes, $tiles );
         }
         unset( $type, $items );
 

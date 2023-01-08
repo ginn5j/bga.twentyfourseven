@@ -109,57 +109,34 @@
     color: red;
 }
 
-.combo_name {
-    border: solid 5px black;
-    width: 730px;
-    font-size: xx-large;
-    text-align: center;
-    background-color: white;
-}
-
-.combo_name_hide {
-    display: none;
-}
-
 .highlight_combo {
-    animation: wiggle 2s linear 1;
-   -webkit-animation: wiggle 2s linear 1;
+    animation: highlight-animation 1.5s 2 alternate;
 }
 
-@keyframes wiggle {
-    0% { transform: rotateZ(0); }
-    15% { transform: rotateZ(-34deg); }
-    25% { transform: rotateZ(34deg); }
-    30% { transform: rotateZ(-21deg); }
-    35% { transform: rotateZ(21deg); }
-    40% { transform: rotateZ(-13deg); }
-    45% { transform: rotateZ(13deg); }
-    50% { transform: rotateZ(-8deg); }
-    55% { transform: rotateZ(8deg); }
-    60% { transform: rotateZ(-5deg); }
-    65% { transform: rotateZ(5deg); }
-    70% { transform: rotateZ(-3deg); }
-    75% { transform: rotateZ(3deg); }
-    80% { transform: rotateZ(-2deg); }
-    90% { transform: rotateZ(2deg); }
-    100% { transform: rotateZ(0); }
+@keyframes highlight-animation {
+    to {
+        box-shadow: 0 0 30px 15px #fff
+    }
 }
 
-@-webkit-keyframes wiggle {
-    0% { transform: rotateZ(0); }
-    15% { transform: rotateZ(-34deg); }
-    25% { transform: rotateZ(34deg); }
-    30% { transform: rotateZ(-21deg); }
-    35% { transform: rotateZ(21deg); }
-    40% { transform: rotateZ(-13deg); }
-    45% { transform: rotateZ(13deg); }
-    50% { transform: rotateZ(-8deg); }
-    55% { transform: rotateZ(8deg); }
-    60% { transform: rotateZ(-5deg); }
-    65% { transform: rotateZ(5deg); }
-    70% { transform: rotateZ(-3deg); }
-    75% { transform: rotateZ(3deg); }
-    80% { transform: rotateZ(-2deg); }
-    90% { transform: rotateZ(2deg); }
-    100% { transform: rotateZ(0); }
+.combo_score{
+    color:maroon;
+    font-size:1em;
+    font-weight:700;
+    position:absolute;
+    text-align: center;
+    text-shadow:1px 0 1px #fff,0 -1px 1px #fff,0 1px 1px #fff,-1px 0 1px #fff;
+    transition:transform .3s ease-in-out
+}
+
+.combo_anim{transform:rotate(-1turn) scale(2)}
+
+.fade_combo {
+    animation: fade-animation 3s linear 1;
+}
+
+@keyframes fade-animation {
+    to {
+        opacity: 0;
+    }
 }
