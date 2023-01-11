@@ -348,6 +348,163 @@ class TwentyFourSeven extends Table
     }
 
     /*
+     * Determine whether a playable tile exists for the player or all players
+     * if player id is null
+     */
+    function doesPlayableTileExist( $player_id = null )
+    {
+        /*
+            When no player id is provided, get all the player ids. Iterate
+            over the player ids (or single player id if one is provided) and 
+            determine if any playable tile exists.
+            - If the player is a zombie, skip the playable check.
+            - If the player is not a zombie, get their smallest tile and 
+            check whether it can be played anywhere on the board.
+            - When a playable tile is found, break out of all the loops and 
+            return the result.
+        */
+
+        $playable_tile_exists = false;
+
+        $player_ids = ($player_id == null ? array_keys($this->loadPlayersBasicInfos()) : [ $player_id ]); 
+        foreach( $player_ids as $p_id )
+        {
+            if( !self::isPlayerZombie( $p_id ) )
+            {
+                // Get the tiles in the hand of the player (null == all players)
+                $tiles_in_hand = $this->tiles->getCardsInLocation( "hand", $p_id, "card_type_arg" );
+
+                if( count( $tiles_in_hand ) > 0 )
+                {
+                    // The smallest tile in hand is the first element of the array since it is sorted by card_type_arg.
+                    $smallest_tile_value = $tiles_in_hand[ 0 ][ "type_arg" ];
+                    // See if this tile can be played on the board
+                    $playables = self::getPlayables();
+                    foreach( $playables as ["x" => $x, "y" => $y, "max" => $max ] )
+                    {
+                        if( $smallest_tile_value <= $max )
+                        {
+                            $playable_tile_exists = true;
+                            break 2; // break the playables and player_ids loops
+                        }
+                    }
+                    unset( $x, $y, $max );
+                } // Else no tiles. This player has nothing to play.
+            }
+        }
+        unset( $p_id );
+
+        return $playable_tile_exists;
+    }
+
+    /*
+        Find the combos at (x,y)
+    */
+    function findCombos( $x, $y )
+    {
+        $combos = array();
+
+        $lines = self::getLinesAtSpace( $x, $y );
+        foreach( $lines as $line )
+        {
+            $length = count( $line );
+            // Only score lines with 2 or more spaces
+            if( $length > 1) {
+                // Sum of combos
+                $sum = 0;
+                foreach( $line as $space )
+                {
+                    $sum += $space['value'];
+                }
+                unset( $space );
+
+                if( $sum == 7 ) // Sum of 7 Combo
+                {
+                    $combo = [
+                        'description' => self::COMBINATIONS[ self::SUM_OF_7 ][ 'description' ],
+                        'minutes' => self::COMBINATIONS[ self::SUM_OF_7 ][ 'minutes' ],
+                        'tiles' => $line
+                    ];
+                    $combos[ self::SUM_OF_7 ][] = $combo;
+                    unset( $combo );
+                }
+                if( $sum == 24 ) // Sum of 24 Combo
+                {
+                    $combo = [
+                        'description' => self::COMBINATIONS[ self::SUM_OF_24 ][ 'description' ],
+                        'minutes' => self::COMBINATIONS[ self::SUM_OF_24 ][ 'minutes' ],
+                        'tiles' => $line
+                    ];
+                    $combos[ self::SUM_OF_24 ][] = $combo;
+                    unset( $combo );
+                }
+                if( $sum == 24 && $length == 7 )
+                {
+                    $combo = [
+                        'description' => self::COMBINATIONS[ self::BONUS ][ 'description' ],
+                        'minutes' => self::COMBINATIONS[ self::BONUS ][ 'minutes' ],
+                        'tiles' => $line
+                    ];
+                    $combos[ self::BONUS ][] = $combo;
+                    unset( $combo );
+                }
+
+                // Get the runs and sets for this line that include (x,y)
+                $runs_and_sets = self::runsAndSets( $x, $y, $line );
+
+                // Add any runs and sets to the combos
+                foreach( $runs_and_sets as $type => $items )
+                {
+                    foreach( $items as $item )
+                    {
+                        $combo = [
+                            'description' => self::COMBINATIONS[ $type ][ 'description' ],
+                            'minutes' => self::COMBINATIONS[ $type ][ 'minutes' ],
+                            'tiles' => $item
+                        ];
+                        $combos[ $type ][] = $combo;
+                        unset( $combo );
+                    }
+                    unset( $item );
+                }
+                unset( $items );
+                unset( $type );
+            }
+
+        }
+        unset( $line );
+
+        /*
+            24/7 Bonus Combos
+
+            The bonus combos are each sum of 24 plus each sum of 7 that were
+            found. So 1 24 and 1 7 would be 1 bonus; 2 24s and 1 7 would be
+            2 bonus combos; 2 24s and 2 7s would be 4 bonus combos, etc.
+        */
+        $combo7s = array_key_exists( self::SUM_OF_7, $combos ) ? $combos[ self::SUM_OF_7 ] : array();
+        $combo24s = array_key_exists( self::SUM_OF_24, $combos ) ? $combos[ self::SUM_OF_24 ] : array();
+        foreach( $combo7s as $combo7 )
+        {
+            foreach( $combo24s as $combo24 )
+            {
+                $tiles = $combo24[ 'tiles' ];
+                array_push( $tiles, ...$combo7[ 'tiles' ] );
+                $combo = [
+                    'description' => self::COMBINATIONS[ self::BONUS ][ 'description' ],
+                    'minutes' => self::COMBINATIONS[ self::BONUS ][ 'minutes' ],
+                    'tiles' => $tiles
+                ];
+                $combos[ self::BONUS ][] = $combo;
+                unset( $tiles, $combo );
+            }
+            unset( $combo24 );
+        }
+        unset( $combo7 );
+
+        return $combos;
+    }
+
+    /*
      * Get the lines at (x,y). When (x,y) does not contain a tile (value > 0),
      * no lines are returned.
      */
@@ -520,149 +677,15 @@ class TwentyFourSeven extends Table
     }
 
     /*
-     * Determine whether a playable tile exists for the player or all players
-     * if player id is null
-     */
-    function doesPlayableTileExist( $player_id = null )
-    {
-        /*
-            Get the list of tiles in the hand of the player (or all if player
-            id is null) ordered by the value of the tiles (i.e., card_type_arg
-            in the database).
-            If no tiles in hand, no playable tile.
-            If any tiles are held, take the smallest tile and check whether it
-            can be played on any of the current playable spaces.
-        */
-
-        // Get the tiles in the hand of the player (null == all players)
-        $tiles_in_hand = $this->tiles->getCardsInLocation( "hand", $player_id, "card_type_arg" );
-
-        // No tiles. Nothing to play.
-        if( count( $tiles_in_hand ) == 0 ) return false;
-
-        $playable_tile_exists = false;
-        // The smallest tile in hand is the first element of the array since it is sorted by card_type_arg.
-        $smallest_tile_value = $tiles_in_hand[ 0 ][ "type_arg" ];
-        // See if this tile can be played on the board
-        $playables = self::getPlayables();
-        foreach( $playables as ["x" => $x, "y" => $y, "max" => $max ] )
-        {
-            if( $smallest_tile_value <= $max )
-            {
-                $playable_tile_exists = true;
-                break;
-            }
-        }
-        unset( $x, $y, $max );
-
-        return $playable_tile_exists;
-    }
-
-    /*
-        Find the combos at (x,y)
+        Checks whether the player is a zombie (kicked or quit)
     */
-    function findCombos( $x, $y )
+    protected function isPlayerZombie( $player_id ) 
     {
-        $combos = array();
-
-        $lines = self::getLinesAtSpace( $x, $y );
-        foreach( $lines as $line )
-        {
-            $length = count( $line );
-            // Only score lines with 2 or more spaces
-            if( $length > 1) {
-                // Sum of combos
-                $sum = 0;
-                foreach( $line as $space )
-                {
-                    $sum += $space['value'];
-                }
-                unset( $space );
-
-                if( $sum == 7 ) // Sum of 7 Combo
-                {
-                    $combo = [
-                        'description' => self::COMBINATIONS[ self::SUM_OF_7 ][ 'description' ],
-                        'minutes' => self::COMBINATIONS[ self::SUM_OF_7 ][ 'minutes' ],
-                        'tiles' => $line
-                    ];
-                    $combos[ self::SUM_OF_7 ][] = $combo;
-                    unset( $combo );
-                }
-                if( $sum == 24 ) // Sum of 24 Combo
-                {
-                    $combo = [
-                        'description' => self::COMBINATIONS[ self::SUM_OF_24 ][ 'description' ],
-                        'minutes' => self::COMBINATIONS[ self::SUM_OF_24 ][ 'minutes' ],
-                        'tiles' => $line
-                    ];
-                    $combos[ self::SUM_OF_24 ][] = $combo;
-                    unset( $combo );
-                }
-                if( $sum == 24 && $length == 7 )
-                {
-                    $combo = [
-                        'description' => self::COMBINATIONS[ self::BONUS ][ 'description' ],
-                        'minutes' => self::COMBINATIONS[ self::BONUS ][ 'minutes' ],
-                        'tiles' => $line
-                    ];
-                    $combos[ self::BONUS ][] = $combo;
-                    unset( $combo );
-                }
-
-                // Get the runs and sets for this line that include (x,y)
-                $runs_and_sets = self::runsAndSets( $x, $y, $line );
-
-                // Add any runs and sets to the combos
-                foreach( $runs_and_sets as $type => $items )
-                {
-                    foreach( $items as $item )
-                    {
-                        $combo = [
-                            'description' => self::COMBINATIONS[ $type ][ 'description' ],
-                            'minutes' => self::COMBINATIONS[ $type ][ 'minutes' ],
-                            'tiles' => $item
-                        ];
-                        $combos[ $type ][] = $combo;
-                        unset( $combo );
-                    }
-                    unset( $item );
-                }
-                unset( $items );
-                unset( $type );
-            }
-
-        }
-        unset( $line );
-
-        /*
-            24/7 Bonus Combos
-
-            The bonus combos are each sum of 24 plus each sum of 7 that were
-            found. So 1 24 and 1 7 would be 1 bonus; 2 24s and 1 7 would be
-            2 bonus combos; 2 24s and 2 7s would be 4 bonus combos, etc.
-        */
-        $combo7s = array_key_exists( self::SUM_OF_7, $combos ) ? $combos[ self::SUM_OF_7 ] : array();
-        $combo24s = array_key_exists( self::SUM_OF_24, $combos ) ? $combos[ self::SUM_OF_24 ] : array();
-        foreach( $combo7s as $combo7 )
-        {
-            foreach( $combo24s as $combo24 )
-            {
-                $tiles = $combo24[ 'tiles' ];
-                array_push( $tiles, ...$combo7[ 'tiles' ] );
-                $combo = [
-                    'description' => self::COMBINATIONS[ self::BONUS ][ 'description' ],
-                    'minutes' => self::COMBINATIONS[ self::BONUS ][ 'minutes' ],
-                    'tiles' => $tiles
-                ];
-                $combos[ self::BONUS ][] = $combo;
-                unset( $tiles, $combo );
-            }
-            unset( $combo24 );
-        }
-        unset( $combo7 );
-
-        return $combos;
+        $players = self::loadPlayersBasicInfos();
+        if ( ! isset($players[$player_id]) )
+            throw new BgaSystemException("Player $player_id is not playing here");
+        
+        return ($players[$player_id]['player_zombie'] == 1);
     }
 
     /*
