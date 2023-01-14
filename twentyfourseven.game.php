@@ -33,16 +33,17 @@ class TwentyFourSeven extends Table
     private const SET_OF_4  = "set-of-4";
     private const BONUS     = "bonus";
 
-    private const STAT_SUM_OF_7  = "tally_sum_of_7";
-    private const STAT_SUM_OF_24 = "tally_sum_of_24";
-    private const STAT_RUN_OF_3  = "tally_run_of_3";
-    private const STAT_RUN_OF_4  = "tally_run_of_4";
-    private const STAT_RUN_OF_5  = "tally_run_of_5";
-    private const STAT_RUN_OF_6  = "tally_run_of_6";
-    private const STAT_SET_OF_3  = "tally_set_of_3";
-    private const STAT_SET_OF_4  = "tally_set_of_4";
-    private const STAT_BONUS     = "tally_bonus";
-    private const STAT_TURN_NBR  = "turns_number";
+    private const STAT_SUM_OF_7   = "tally_sum_of_7";
+    private const STAT_SUM_OF_24  = "tally_sum_of_24";
+    private const STAT_RUN_OF_3   = "tally_run_of_3";
+    private const STAT_RUN_OF_4   = "tally_run_of_4";
+    private const STAT_RUN_OF_5   = "tally_run_of_5";
+    private const STAT_RUN_OF_6   = "tally_run_of_6";
+    private const STAT_SET_OF_3   = "tally_set_of_3";
+    private const STAT_SET_OF_4   = "tally_set_of_4";
+    private const STAT_BONUS      = "tally_bonus";
+    private const STAT_TURN_NBR   = "turns_number";
+    private const STAT_TILES_LEFT = "tiles_left";
 
     private const RUN = "Run";
     private const SET = "Set";
@@ -87,7 +88,8 @@ class TwentyFourSeven extends Table
         self::STAT_RUN_OF_6,
         self::STAT_SET_OF_3,
         self::STAT_SET_OF_4,
-        self::STAT_BONUS
+        self::STAT_BONUS,
+        self::STAT_TILES_LEFT
     ];
 
 	function __construct( )
@@ -197,6 +199,7 @@ class TwentyFourSeven extends Table
 
         foreach ( $players as $player_id => $player ) {
             $this->tiles->pickCards($hand_size, 'deck', $player_id);
+            self::setStat( $hand_size, self::STAT_TILES_LEFT, $player_id );
         }
         unset( $player );
 
@@ -1023,10 +1026,10 @@ class TwentyFourSeven extends Table
              */
 
             // Table stats
-            self::incStat( 1, 'turns_number' );
+            self::incStat( 1, self::STAT_TURN_NBR );
 
             // Player stats
-            self::incStat( 1, 'turns_number', $player_id );
+            self::incStat( 1, self::STAT_TURN_NBR, $player_id );
             foreach( $score[ 'tally' ] as $type => $tally_count )
             {
                 self::incStat( $tally_count, self::COMBINATIONS[ $type ][ 'statistic' ], $player_id );
@@ -1071,9 +1074,10 @@ class TwentyFourSeven extends Table
                 is a 'larger' number since the tie-breaker is the player 
                 with the fewest tiles among tied players.
             */
-            $tile_count = 0 - $this->tiles->countCardInLocation( 'hand', $player_id );
+            $tile_count = $this->tiles->countCardInLocation( 'hand', $player_id );
+            self::setStat( $tile_count, self::STAT_TILES_LEFT, $player_id );
             self::DbQuery( "UPDATE player
-                            SET player_score_aux = $tile_count
+                            SET player_score_aux = (0 - $tile_count)
                             WHERE player_id = $player_id");
 
 

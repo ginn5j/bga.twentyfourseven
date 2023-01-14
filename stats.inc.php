@@ -101,6 +101,10 @@ $stats_type = array(
                     "name" => totranslate("Bonus (60 minutes)"),
                     "type" => "int" ),
 
+        "tiles_left" => array("id"=> 20,
+                    "name" => totranslate("Tiles Remaining"),
+                    "type" => "int" ),
+
     )
 
 );
