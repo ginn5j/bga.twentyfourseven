@@ -1121,7 +1121,7 @@ class TwentyFourSeven extends Table
             // Go to the next state
             $this->gamestate->nextState( 'playTile' );
         } else
-            throw new BgaSystemException( "Impossible move" );
+            throw new BgaSystemException( self::_( "Impossible move" ) );
     }
 
 //////////////////////////////////////////////////////////////////////////////

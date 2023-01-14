@@ -382,7 +382,7 @@ function (dojo, declare) {
                 {
                     // x,y is a playable space
                     dojo.addClass( 'space_'+playable.x+'_'+playable.y, 'tf7_playable_space fa fa-2x' );
-                    this.addTooltip( 'space_'+playable.x+'_'+playable.y, '', _('Play a tile less than or equal to '+playable.max+' here.') );
+                    this.addTooltip( 'space_'+playable.x+'_'+playable.y, '', dojo.string.substitute( _("Play a tile less than or equal to ${m} here"), {m: playable.max} ) );
                 }
             }
         },
