@@ -24,11 +24,7 @@ define([
 function (dojo, declare) {
     return declare("bgagame.twentyfourseven", ebg.core.gamegui, {
         constructor: function(){
-            console.log('twentyfourseven constructor');
-
-            // Here, you can init the global variables of your user interface
-            // Example:
-            // this.myGlobalValue = 0;
+            // Init global variables
             this.tilewidth = 75;
             this.tileheight = 105;
             this.playables = [];
@@ -51,8 +47,6 @@ function (dojo, declare) {
 
         setup: function( gamedatas )
         {
-            console.log( "Starting game setup" );
-
             // Setting up player boards
             for( var player_id in gamedatas.players )
             {
@@ -106,8 +100,6 @@ function (dojo, declare) {
 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
-
-            console.log( "Ending game setup" );
         },
 
 
@@ -119,8 +111,6 @@ function (dojo, declare) {
         //
         onEnteringState: function( stateName, args )
         {
-            console.log( 'Entering state: '+stateName );
-
             switch( stateName )
             {
                 case 'playerTurn':
@@ -148,8 +138,6 @@ function (dojo, declare) {
         //
         onLeavingState: function( stateName )
         {
-            console.log( 'Leaving state: '+stateName );
-
             switch( stateName )
             {
             /* Example:
@@ -178,8 +166,6 @@ function (dojo, declare) {
         //
         onUpdateActionButtons: function( stateName, args )
         {
-            console.log( 'onUpdateActionButtons: '+stateName );
-
             if( this.isCurrentPlayerActive() )
             {
                 switch( stateName )
@@ -514,8 +500,6 @@ function (dojo, declare) {
         */
         setupNotifications: function()
         {
-            console.log( 'notifications subscriptions setup' );
-
             dojo.subscribe( 'playTile', this, "notif_playTile" );
             this.notifqueue.setSynchronous( 'playTile', 500 );
             dojo.subscribe( 'newScores', this, "notif_newScores" );
