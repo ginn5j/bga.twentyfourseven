@@ -149,7 +149,8 @@ class TwentyFourSeven extends Table
 
         $sql .= implode( $values, ',' );
         self::DbQuery( $sql );
-        self::reattributeColorsBasedOnPreferences( $players, $gameinfos['player_colors'] );
+        if ($gameinfos['favorite_colors_support']) 
+            self::reattributeColorsBasedOnPreferences( $players, $gameinfos['player_colors'] );
         self::reloadPlayersBasicInfos();
 
         /************ Start the game initialization *****/
@@ -1063,6 +1064,18 @@ class TwentyFourSeven extends Table
              * Draw a tile and add it to the player's hand.
              */
             $drawTile = $this->tiles->pickCard( 'deck', $player_id );
+
+            /*
+                Update player score aux with tile count for tie-breakers
+                - Getting the count as a negative number so a smaller tile 
+                is a 'larger' number since the tie-breaker is the player 
+                with the fewest tiles among tied players.
+            */
+            $tile_count = 0 - $this->tiles->countCardInLocation( 'hand', $player_id );
+            self::DbQuery( "UPDATE player
+                            SET player_score_aux = $tile_count
+                            WHERE player_id = $player_id");
+
 
             /*
              * Notify players of the game progression.
