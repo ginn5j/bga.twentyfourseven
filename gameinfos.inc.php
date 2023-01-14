@@ -1,6 +1,8 @@
 <?php
 
 /*
+    24/7: The Game BGA implementation: © Jim Ginn <ginn5j@gmail.com>
+    
     From this file, you can edit the various meta-information of your game.
 
     Once you modified the file, don't forget to click on "Reload game informations" from the Control Panel in order in can be taken into account.
