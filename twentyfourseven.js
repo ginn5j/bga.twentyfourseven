@@ -232,11 +232,11 @@ function (dojo, declare) {
         */
         clearPlayables: function()
         {
-            for( const space of document.querySelectorAll( ".playable_space" ) )
+            for( const space of document.querySelectorAll( ".tf7_playable_space" ) )
             {
                 this.removeTooltip( space.id );
             }
-            dojo.query( '.playable_space' ).removeClass( 'playable_space playable not_playable fa fa-2x fa-check-circle fa-times-circle' );
+            dojo.query( '.tf7_playable_space' ).removeClass( 'tf7_playable_space tf7_playable tf7_not_playable fa fa-2x fa-check-circle fa-times-circle' );
             this.playables = [];
         },
 
@@ -265,8 +265,8 @@ function (dojo, declare) {
         highlightNextCombo: function()
         {
             // Remove current highlighting
-            dojo.query( ".highlight_combo" ).removeClass( 'highlight_combo' );
-            dojo.query( ".combo_score" ).forEach( dojo.destroy );
+            dojo.query( ".tf7_highlight_combo" ).removeClass( 'tf7_highlight_combo' );
+            dojo.query( ".tf7_combo_score" ).forEach( dojo.destroy );
 
             // Force a reflow
             document.querySelector( '#board' ).offsetHeight;
@@ -280,17 +280,17 @@ function (dojo, declare) {
                 for( const tile of combo.tiles )
                 {
                     // If the tile doesn't have the highlight, add it (same tile can appear twice on bonus combos)
-                    if( !dojo.hasClass( "tile_"+tile.x+"_"+tile.y, "highlight_combo" ) )
+                    if( !dojo.hasClass( "tile_"+tile.x+"_"+tile.y, "tf7_highlight_combo" ) )
                     {
                         this.animations++;
-                        dojo.addClass( "tile_"+tile.x+"_"+tile.y, "highlight_combo" );
+                        dojo.addClass( "tile_"+tile.x+"_"+tile.y, "tf7_highlight_combo" );
                     }
                 }
                 var t = "tile_"+combo.x+"_"+combo.y;
-                var r = dojo.place(this.format_string('<div class="combo_score fade_combo">+${score}<br>${description}</div>', { score: combo.minutes, description: combo.description }), t);
+                var r = dojo.place(this.format_string('<div class="tf7_combo_score tf7_fade_combo">+${score}<br>${description}</div>', { score: combo.minutes, description: combo.description }), t);
                 this.placeOnObject(r, t);
                 dojo.style(r, "color", "#" + this.gamedatas.players[combo.player_id]["color"]);
-                dojo.addClass(r, "combo_anim");
+                dojo.addClass(r, "tf7_combo_anim");
                 this.animations++;
             }
         },
@@ -332,18 +332,18 @@ function (dojo, declare) {
                     {
                         if( tile.type <= playable.max )
                         {
-                            dojo.replaceClass( 'space_'+playable.x+'_'+playable.y, 'playable fa-check-circle', 'not_playable fa-times-circle' );
+                            dojo.replaceClass( 'space_'+playable.x+'_'+playable.y, 'tf7_playable fa-check-circle', 'tf7_not_playable fa-times-circle' );
                         }
                         else
                         {
-                            dojo.replaceClass( 'space_'+playable.x+'_'+playable.y, 'not_playable fa-times-circle', 'playable fa-check-circle' );
+                            dojo.replaceClass( 'space_'+playable.x+'_'+playable.y, 'tf7_not_playable fa-times-circle', 'tf7_playable fa-check-circle' );
                         }
                     }
                 }
                 else
                 {
                     this.playerHand.unselectAll();
-                    dojo.query( '.playable_space' ).removeClass( 'playable not_playable fa-check-circle fa-times-circle' );
+                    dojo.query( '.tf7_playable_space' ).removeClass( 'tf7_playable tf7_not_playable fa-check-circle fa-times-circle' );
                 }
             }
             else
@@ -395,7 +395,7 @@ function (dojo, declare) {
                 for( const playable of this.playables )
                 {
                     // x,y is a playable space
-                    dojo.addClass( 'space_'+playable.x+'_'+playable.y, 'playable_space fa fa-2x' );
+                    dojo.addClass( 'space_'+playable.x+'_'+playable.y, 'tf7_playable_space fa fa-2x' );
                     this.addTooltip( 'space_'+playable.x+'_'+playable.y, '', _('Play a tile less than or equal to '+playable.max+' here.') );
                 }
             }
@@ -440,7 +440,7 @@ function (dojo, declare) {
             event.stopPropagation();
             event.preventDefault();
 
-            if( event.target.classList.contains( 'playable' ) )
+            if( event.target.classList.contains( 'tf7_playable' ) )
             {
                 // Get the clicked space X and Y
                 // Note: space id format is "space_X_Y"

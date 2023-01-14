@@ -62,37 +62,37 @@
     position: relative;
 }
 
-.space {
+.tf7_space {
     width: 75px;
     height: 105px;
     position: absolute;
 }
 
-.tile {
+.tf7_tile {
     width: 75px;
     height: 105px;
     position: absolute;
     background-image: url('img/tiles.png');
 }
-.tile_1  { background-position:    0px    0px;   }
-.tile_2  { background-position:  -75px    0px;   }
-.tile_3  { background-position: -150px    0px;   }
-.tile_4  { background-position: -225px    0px;   }
-.tile_5  { background-position: -300px    0px;   }
-.tile_6  { background-position:    0px -105px;   }
-.tile_7  { background-position:  -75px -105px;   }
-.tile_8  { background-position: -150px -105px;   }
-.tile_9  { background-position: -225px -105px;   }
-.tile_10 { background-position: -300px -105px;   }
+.tf7_tile_1  { background-position:    0px    0px;   }
+.tf7_tile_2  { background-position:  -75px    0px;   }
+.tf7_tile_3  { background-position: -150px    0px;   }
+.tf7_tile_4  { background-position: -225px    0px;   }
+.tf7_tile_5  { background-position: -300px    0px;   }
+.tf7_tile_6  { background-position:    0px -105px;   }
+.tf7_tile_7  { background-position:  -75px -105px;   }
+.tf7_tile_8  { background-position: -150px -105px;   }
+.tf7_tile_9  { background-position: -225px -105px;   }
+.tf7_tile_10 { background-position: -300px -105px;   }
 
-.stone {
+.tf7_stone {
     width: 75px;
     height: 105px;
     position: absolute;
     background-image: url('img/stone.png');
 }
 
-.playable_space {
+.tf7_playable_space {
     background-color: rgba(160,82,45,.35);
     cursor: pointer;
     border: 5px solid sienna;
@@ -101,25 +101,25 @@
     text-align: center;
 }
 
-.playable {
+.tf7_playable {
     color: green;
 }
 
-.not_playable {
+.tf7_not_playable {
     color: red;
 }
 
-.highlight_combo {
-    animation: highlight-animation 1.5s 2 alternate;
+.tf7_highlight_combo {
+    animation: tf7_highlight-animation 1.5s 2 alternate;
 }
 
-@keyframes highlight-animation {
+@keyframes tf7_highlight-animation {
     to {
         box-shadow: 0 0 30px 15px #fff
     }
 }
 
-.combo_score{
+.tf7_combo_score{
     color:maroon;
     font-size:1em;
     font-weight:700;
@@ -129,13 +129,13 @@
     transition:transform .3s ease-in-out
 }
 
-.combo_anim{transform:rotate(-1turn) scale(2)}
+.tf7_combo_anim{transform:rotate(-1turn) scale(2)}
 
-.fade_combo {
-    animation: fade-animation 3s linear 1;
+.tf7_fade_combo {
+    animation: tf7-fade-animation 3s linear 1;
 }
 
-@keyframes fade-animation {
+@keyframes tf7-fade-animation {
     to {
         opacity: 0;
     }
