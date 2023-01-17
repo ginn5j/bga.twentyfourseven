@@ -124,12 +124,11 @@
     font-size:1em;
     font-weight:700;
     position:absolute;
+    scale:2;
     text-align: center;
     text-shadow:1px 0 1px #fff,0 -1px 1px #fff,0 1px 1px #fff,-1px 0 1px #fff;
     transition:transform .3s ease-in-out
 }
-
-.tf7_combo_anim{transform:rotate(-1turn) scale(2)}
 
 .tf7_fade_combo {
     animation: tf7-fade-animation 3s linear 1;

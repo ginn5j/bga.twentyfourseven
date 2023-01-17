@@ -192,17 +192,20 @@ function (dojo, declare) {
         addPieceOnBoard: function( x, y, value, player )
         {
             if (value > 0) { // Tile
-                dojo.place( this.format_block( 'jstpl_tile', {
-                    x_y: x+'_'+y,
-                    value: value
-                } ) , 'pieces' );
-
-                if (player !== undefined) {
-                    this.placeOnObject( 'tile_'+x+'_'+y, 'overall_player_board_'+player );
-                } else {
-                    this.placeOnObject( 'tile_'+x+'_'+y, 'board' );
-                }
-                this.slideToObject( 'tile_'+x+'_'+y, 'space_'+x+'_'+y ).play();
+                if( document.querySelector( '#tile_'+x+'_'+y ) == null )
+                {
+                    dojo.place( this.format_block( 'jstpl_tile', {
+                        x_y: x+'_'+y,
+                        value: value
+                    } ) , 'pieces' );
+    
+                    if (player !== undefined) {
+                        this.placeOnObject( 'tile_'+x+'_'+y, 'overall_player_board_'+player );
+                    } else {
+                        this.placeOnObject( 'tile_'+x+'_'+y, 'board' );
+                    }
+                    this.slideToObject( 'tile_'+x+'_'+y, 'space_'+x+'_'+y ).play();
+                } //else this is the player that played the tile and it was placed when they selected the board space on their turn
             } else { // Time out stone
                 dojo.place( this.format_block( 'jstpl_stone', {
                     x_y: x+'_'+y
@@ -250,6 +253,9 @@ function (dojo, declare) {
 
         highlightNextCombo: function()
         {
+            // Clear the animation counter
+            this.animations = 0;
+
             // Remove current highlighting
             dojo.query( ".tf7_highlight_combo" ).removeClass( 'tf7_highlight_combo' );
             dojo.query( ".tf7_combo_score" ).forEach( dojo.destroy );
@@ -276,7 +282,6 @@ function (dojo, declare) {
                 var r = dojo.place(this.format_string('<div class="tf7_combo_score tf7_fade_combo">+${score}<br>${description}</div>', { score: combo.minutes, description: combo.description }), t);
                 this.placeOnObject(r, t);
                 dojo.style(r, "color", "#" + this.gamedatas.players[combo.player_id]["color"]);
-                dojo.addClass(r, "tf7_combo_anim");
                 this.animations++;
             }
         },
@@ -521,15 +526,7 @@ function (dojo, declare) {
             // Place new pieces on the board (played tile and any time out stones)
             for( const piece of notif.args.new_pieces )
             {
-                /*
-                    Only add the piece if it is a stone (0) or when the current 
-                    player is not the player that played the tile (because we've 
-                    already placed the tile for the player that played the tile).
-                */
-                if( piece.value <= 0 || this.player_id != notif.args.player_id )
-                {
-                    this.addPieceOnBoard( piece.x, piece.y, piece.value, notif.args.player_id );
-                }
+                this.addPieceOnBoard( piece.x, piece.y, piece.value, notif.args.player_id );
             }
 
             // Highlight any combos scored
