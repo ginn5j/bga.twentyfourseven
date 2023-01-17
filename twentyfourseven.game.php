@@ -932,16 +932,6 @@ class TwentyFourSeven extends Table
         return $score;
     }
 
-    /*
-        Update the board at (x,y) with value
-    */
-    function updateBoard( $x, $y, $val )
-    {
-        //TODO: Check parms for valid values!
-        self::DbQuery( "UPDATE board SET board_value = $val WHERE board_x = $x AND board_y = $y") ;
-    }
-
-
 //////////////////////////////////////////////////////////////////////////////
 //////////// Player actions
 ////////////
@@ -989,7 +979,7 @@ class TwentyFourSeven extends Table
             /*
              * Update the board at (x,y) with the value of the tile
              */
-            self::updateBoard( $x, $y, $played_tile_value );
+            self::DbQuery( "UPDATE board SET board_value = $played_tile_value WHERE board_x = $x AND board_y = $y" );
 
             /*
              * Change the location of the tile from the player's hand to

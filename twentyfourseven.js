@@ -51,8 +51,6 @@ function (dojo, declare) {
             for( var player_id in gamedatas.players )
             {
                 var player = gamedatas.players[player_id];
-
-                // TODO: Setting up players boards if needed
             }
 
             // Player hand
