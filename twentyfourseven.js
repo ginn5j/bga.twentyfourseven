@@ -449,9 +449,9 @@ function (dojo, declare) {
                         // Get the tile played
                         var tile = tiles[0];
 
-                        // Put it on the board
+                        // Put it on the board and remove from hand
                         game.addPieceOnBoard( x, y, tile.type, game.player_id );
-                        // TODO: REMOVE TILE FROM PLAYER'S HAND
+                        game.playerHand.removeFromStockById( tile.id );
 
                         /*
                             Add action buttons to confirm or undo the played tile
@@ -478,7 +478,7 @@ function (dojo, declare) {
                             */
                             game.removeActionButtons();
                             game.removePieceFromBoard( x, y, tile.type );
-                            // TODO: ADD TILE BACK TO PLAYER'S HAND
+                            game.playerHand.addToStockWithId( tile.type, tile.id );
                         }), null, null, "gray");
                         game.startActionTimer("confirmTile_button", 5)
                     }
