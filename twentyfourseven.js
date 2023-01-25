@@ -447,8 +447,14 @@ function (dojo, declare) {
                         // Get the tile played
                         var tile = tiles[0];
 
-                        // Put it on the board and remove from hand
+                        /*
+                            Put the tile on the board, save the playables, 
+                            clear the playables and remove the tile from the
+                            player's hand.
+                        */
+                        var tPlayables = game.playables;
                         game.addPieceOnBoard( x, y, tile.type, game.player_id );
+                        game.clearPlayables();
                         game.playerHand.removeFromStockById( tile.id );
 
                         /*
@@ -476,6 +482,7 @@ function (dojo, declare) {
                             */
                             game.removeActionButtons();
                             game.removePieceFromBoard( x, y, tile.type );
+                            game.updatePlayables( tPlayables );
                             game.playerHand.addToStockWithId( tile.type, tile.id );
                         }), null, null, "gray");
                         game.startActionTimer("confirmTile_button", 5)
