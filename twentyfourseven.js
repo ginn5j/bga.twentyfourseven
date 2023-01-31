@@ -58,8 +58,9 @@ function (dojo, declare) {
             this.playerHand.create(this, $('tf7_player_hand'), this.tilewidth, this.tileheight);
             this.playerHand.image_items_per_row = 5;
             this.playerHand.centerItems = true;
-            this.playerHand.extraClasses = 'playerTile';
+            this.playerHand.extraClasses = 'tf7_player_tile';
             this.playerHand.setSelectionMode( 1 );
+            this.playerHand.setSelectionAppearance( 'class' );
             dojo.connect( this.playerHand, 'onChangeSelection', this, 'onTileSelectionChange' );
 
             // Create cards types:

@@ -47,6 +47,13 @@
 
 
 /********* You can start writing your CSS below this line: **********/
+#tf7_board {
+    width: 740px;
+    height: 958px;
+    display: inline-block;
+    position: relative;
+}
+
 #board {
     width: 740px;
     height: 958px;
@@ -56,10 +63,26 @@
 
 #tf7_player {
     background-color: rgba(255, 255, 255, .25);
-    margin-top: 10px;
-    padding: 10px 0px;
-    width: 740px;
+    display: inline-block;
     position: relative;
+}
+
+@media (max-height: 1229px) and (min-width: 1101px) {
+    #tf7_player {
+        margin-top: 0px;
+        padding: 10px 0px;
+        height: 938px;
+        width: 110px;
+    }
+}
+
+@media (min-height: 1230px), (max-width: 1100px) {
+    #tf7_player {
+        margin-top: 10px;
+        padding: 10px 0px;
+        height: 130px;
+        width: 740px;
+    }
 }
 
 .tf7_space {
@@ -107,6 +130,15 @@
 
 .tf7_not_playable {
     color: red;
+}
+
+.tf7_player_tile {
+    margin: 5px;
+}
+
+.stockitem_selected {
+	border: 5px solid red !important;
+    margin: 0px !important;
 }
 
 .tf7_highlight_combo {
