@@ -63,12 +63,12 @@
 
 #tf7_player {
     background-color: rgba(255, 255, 255, .25);
-    display: inline-block;
     position: relative;
 }
 
 @media (max-height: 1229px) and (min-width: 1101px) {
     #tf7_player {
+        display: inline-block;
         margin-top: 0px;
         padding: 10px 0px;
         height: 938px;
@@ -78,6 +78,7 @@
 
 @media (min-height: 1230px), (max-width: 1100px) {
     #tf7_player {
+        display: block;
         margin-top: 10px;
         padding: 10px 0px;
         height: 130px;
