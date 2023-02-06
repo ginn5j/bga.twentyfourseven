@@ -172,3 +172,58 @@
         opacity: 0;
     }
 }
+
+.tf7_deck_size, 
+.tf7_hand_size 
+{
+    background-color: sienna;
+    border-radius: 3px;
+    display: -moz-inline-box;
+    display: inline-block;
+    padding: 2px 5px;
+    position: relative;
+}
+
+.tf7_deck_size .tf7_deck_size_icon, 
+.tf7_deck_size .tf7_deck_size_value, 
+.tf7_hand_size .tf7_hand_size_icon, 
+.tf7_hand_size .tf7_hand_size_value 
+{
+    color: white;
+}
+
+div.tf7_help_html div
+{
+    margin-bottom: 5px;
+}
+
+table.tf7_combo_summary thead
+{
+    background: sienna;
+    border-bottom: 2px solid black;
+    color: white;
+    font-weight: bold;
+}
+
+table.tf7_combo_summary tbody tr:nth-child(odd)
+{
+    background: linen;
+}
+
+table.tf7_combo_summary tbody tr:nth-child(even)
+{
+    background: burlywood;
+}
+
+table.tf7_combo_summary th:nth-child(1),
+table.tf7_combo_summary td:nth-child(1)
+{
+    padding: 5px;
+    text-align: left;
+}
+table.tf7_combo_summary th:nth-child(2),
+table.tf7_combo_summary td:nth-child(2)
+{
+    padding: 5px;
+    text-align: center;
+}

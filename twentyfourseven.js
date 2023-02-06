@@ -47,10 +47,22 @@ function (dojo, declare) {
 
         setup: function( gamedatas )
         {
+            this.setupGameSummary( gamedatas );
+
+            this.tf7Dialog = new ebg.popindialog();
+            this.helpHtml = this.format_block( 'jstpl_help_dialog', { } );  
+
             // Setting up player boards
             for( var player_id in gamedatas.players )
             {
                 var player = gamedatas.players[player_id];
+                var hand_size = gamedatas.hand_sizes[player_id];
+
+                var player_board_div = $('player_board_'+player_id);
+                dojo.place( this.format_block('jstpl_player_board', {
+                    player_id: player_id,
+                    hand_size: hand_size
+                } ), player_board_div );                
             }
 
             // Player hand
@@ -101,6 +113,20 @@ function (dojo, declare) {
             this.setupNotifications();
         },
 
+        /*
+            setupGameSummary:
+
+            Sets up the game summary panel in the player boards.
+        */
+        setupGameSummary: function( gamedatas )
+        {
+            // Deck size
+            var deck_size = gamedatas.deck_size;
+            document.querySelector( '#tf7_game_summary .tf7_deck_size_value' ).textContent = deck_size;
+
+            // Help dialog
+            this.addActionButton( 'tf7_help_button', _('Help'), 'onHelp', 'tf7_game_summary', false, 'gray');
+        },
 
         ///////////////////////////////////////////////////
         //// Game & client states
@@ -158,6 +184,14 @@ function (dojo, declare) {
         onEnterPlayerTurn: function( args )
         {
             this.updatePlayables( args.args.playables );
+        },
+
+        onHelp: function() 
+        {
+            this.tf7Dialog.create( 'tf7_help_dialog' );
+            this.tf7Dialog.setTitle( _("24/7 Help") );
+            this.tf7Dialog.setContent( this.helpHtml );
+            this.tf7Dialog.show();
         },
 
         // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -404,6 +438,12 @@ function (dojo, declare) {
             }
         },
 
+        /* @Override */
+        updatePlayerOrdering() {
+            this.inherited(arguments);
+            dojo.place('tf7_game_summary', 'player_boards', 'first');
+        },
+
         ///////////////////////////////////////////////////
         //// Player's action
 
@@ -548,7 +588,11 @@ function (dojo, declare) {
             {
                 var newScore = notif.args.scores[ player_id ];
                 var newTally = notif.args.tallies[ player_id ];
+                var newHandSize = notif.args.hand_sizes[ player_id ];
+                var newDeckSize = notif.args.deck_size;
                 this.scoreCtrl[ player_id ].toValue( newScore );
+                document.querySelector( '#tf7_game_summary .tf7_deck_size_value' ).textContent = newDeckSize;
+                document.querySelector( '#tf7_player_board_'+player_id+' .tf7_hand_size_value' ).textContent = newHandSize;
             }
         },
 

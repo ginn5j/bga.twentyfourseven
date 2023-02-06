@@ -255,6 +255,12 @@ class TwentyFourSeven extends Table
         // Tallies for both players stats
         $result['tallies'] = self::getPlayersTally();
 
+        // Tile counts by player
+        $result['hand_sizes'] = $this->tiles->countCardsByLocationArgs( 'hand' );
+
+        // Tile count in deck
+        $result['deck_size'] = $this->tiles->countCardInLocation( 'deck' );
+
         return $result;
     }
 
@@ -1095,9 +1101,13 @@ class TwentyFourSeven extends Table
              */
             $newScores = self::getCollectionFromDb( "SELECT player_id, player_score FROM player", true );
             $tallies = self::getPlayersTally();
+            $hand_sizes = $this->tiles->countCardsByLocationArgs( 'hand' );
+            $deck_size = $this->tiles->countCardInLocation( 'deck' );
             self::notifyAllPlayers( "newScores", "", array(
                 "scores" => $newScores,
-                "tallies" => $tallies
+                "tallies" => $tallies,
+                "hand_sizes" => $hand_sizes,
+                "deck_size" => $deck_size
             ) );
 
             /*
