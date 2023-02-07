@@ -256,7 +256,7 @@ class TwentyFourSeven extends Table
         $result['tallies'] = self::getPlayersTally();
 
         // Tile counts by player
-        $result['hand_sizes'] = $this->tiles->countCardsByLocationArgs( 'hand' );
+        $result['hand_sizes'] = self::getHandSizes();
 
         // Tile count in deck
         $result['deck_size'] = $this->tiles->countCardInLocation( 'deck' );
@@ -512,6 +512,35 @@ class TwentyFourSeven extends Table
         unset( $combo7 );
 
         return $combos;
+    }
+
+    /*
+        Return an array keyed on player_id of each player's hand size. This 
+        helper function is used because countCardsByLocationArgs doesn't 
+        include a player once they no longer have any tiles in hand.
+    */
+    protected function getHandSizes()
+    {
+        $hand_sizes = $this->tiles->countCardsByLocationArgs( 'hand' );
+
+        if( ! is_array( $hand_sizes ) )
+        {
+            $hand_sizes = array();
+        }
+        
+        // Get player ids
+        $player_ids =  array_keys($this->loadPlayersBasicInfos());
+
+        foreach( $player_ids as $player_id )
+        {
+            if( ! isset( $hand_sizes[ $player_id ] ) )
+            { // Any player not in hand_sizes has run out of tiles
+                $hand_sizes[ $player_id ] = 0;
+            }
+        }
+        unset( $player_id );
+
+        return $hand_sizes;
     }
 
     /*
@@ -1101,7 +1130,7 @@ class TwentyFourSeven extends Table
              */
             $newScores = self::getCollectionFromDb( "SELECT player_id, player_score FROM player", true );
             $tallies = self::getPlayersTally();
-            $hand_sizes = $this->tiles->countCardsByLocationArgs( 'hand' );
+            $hand_sizes = self::getHandSizes();
             $deck_size = $this->tiles->countCardInLocation( 'deck' );
             self::notifyAllPlayers( "newScores", "", array(
                 "scores" => $newScores,
