@@ -50,40 +50,6 @@ var jstpl_player_board='<div class="tf7_player_board" id="tf7_player_board_${pla
         '<span class="tf7_hand_size_value">${hand_size}</span>' +
     '</span>' +
 '</div>';
-var jstpl_help_dialog='<div class="tf7_help_html" id="tf7_help_html">' +
-    '<div>' +
-        '<span class="tf7_deck_size">' +
-            '<i class="tf7_deck_size_icon fa fa-shopping-bag" aria-hidden="true"></i>&nbsp;' +
-            '<span class="tf7_deck_size_value">24</span>' +
-        '</span>' +
-        ' : Tiles available to draw.' +
-    '</div>' +
-    '<div>' +
-        '<span class="tf7_hand_size">' +
-            '<i class="tf7_hand_size_icon fa fa-hand-paper-o" aria-hidden="true"></i>&nbsp;' +
-            '<span class="tf7_hand_size_value">6</span>' +
-        '</span>' +
-        " : Tiles in a player's hand." +
-    '</div>' +
-    '<div>' +
-        '<table class="tf7_combo_summary" id="tf7_combo_summary">' +
-            '<thead>' +
-                '<tr><th>Combination</th><th>Minutes</th></tr>' +
-            '</thead>' +
-            '<tbody>' +
-                '<tr><td>Sum of 7 (all tiles, 2+ tiles)</td><td>20</td></tr>' +
-                '<tr><td>Run of 3</td><td>30</td></tr>' +
-                '<tr><td>Sum of 24 (all tiles)</td><td>40</td></tr>' +
-                '<tr><td>Run of 4</td><td>40</td></tr>' +
-                '<tr><td>Set of 3 (3 of a Kind)</td><td>50</td></tr>' +
-                '<tr><td>Run of 5</td><td>50</td></tr>' +
-                '<tr><td>Set of 4 (4 of a Kind)</td><td>60</td></tr>' +
-                '<tr><td>Run of 6</td><td>60</td></tr>' +
-                '<tr><td>Bonus<br>- Sum of 7 and Sum of 24<br>- Sum of 24 in 7 Tiles</td><td>60</td></tr>' +
-            '</tbody>' +
-        '</table>' +
-    '</div>' +
-'</div>';
 
 </script>  
 

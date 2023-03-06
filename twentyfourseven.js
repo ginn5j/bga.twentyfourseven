@@ -50,7 +50,6 @@ function (dojo, declare) {
             this.setupGameSummary( gamedatas );
 
             this.tf7Dialog = new ebg.popindialog();
-            this.helpHtml = this.format_block( 'jstpl_help_dialog', { } );  
 
             // Setting up player boards
             for( var player_id in gamedatas.players )
@@ -190,7 +189,7 @@ function (dojo, declare) {
         {
             this.tf7Dialog.create( 'tf7_help_dialog' );
             this.tf7Dialog.setTitle( _("24/7 Help") );
-            this.tf7Dialog.setContent( this.helpHtml );
+            this.tf7Dialog.setContent( this.helpDialogHTML() );
             this.tf7Dialog.show();
         },
 
@@ -260,6 +259,44 @@ function (dojo, declare) {
             }
             dojo.query( '.tf7_playable_space' ).removeClass( 'tf7_playable_space tf7_playable tf7_not_playable fa fa-2x fa-check-circle fa-times-circle' );
             this.playables = [];
+        },
+
+        helpDialogHTML: function()
+        {
+            return '<div class="tf7_help_html" id="tf7_help_html">' +
+                        '<div>' +
+                            '<span class="tf7_deck_size">' +
+                                '<i class="tf7_deck_size_icon fa fa-shopping-bag" aria-hidden="true"></i>&nbsp;' +
+                                '<span class="tf7_deck_size_value">24</span>' +
+                            '</span>' +
+                            ' : ' + _('Tiles available to draw') +
+                        '</div>' +
+                        '<div>' +
+                            '<span class="tf7_hand_size">' +
+                                '<i class="tf7_hand_size_icon fa fa-hand-paper-o" aria-hidden="true"></i>&nbsp;' +
+                                '<span class="tf7_hand_size_value">6</span>' +
+                            '</span>' +
+                            ' : ' + _("Tiles in a player's hand") +
+                        '</div>' +
+                        '<div>' +
+                            '<table class="tf7_combo_summary" id="tf7_combo_summary">' +
+                                '<thead>' +
+                                    '<tr><th>' + _('Combination') + '</th><th>' + _('Minutes') + '</th></tr>' +
+                                '</thead>' +
+                                '<tbody>' +
+                                    '<tr><td>' + _('Sum of 7 (all tiles, 2+ tiles)') + '</td><td>20</td></tr>' +
+                                    '<tr><td>' + _('Run of 3') + '</td><td>30</td></tr>' +
+                                    '<tr><td>' + _('Sum of 24 (all tiles)') + '</td><td>40</td></tr>' +
+                                    '<tr><td>' + _('Run of 4') + '</td><td>40</td></tr>' +
+                                    '<tr><td>' + _('Set of 3 (3 of a Kind)') + '</td><td>50</td></tr>' +
+                                    '<tr><td>' + _('Run of 5') + '</td><td>50</td></tr>' +
+                                    '<tr><td>' + _('Set of 4 (4 of a Kind)') + '</td><td>60</td></tr>' +
+                                    '<tr><td>' + _('Run of 6') + '</td><td>60</td></tr>' +
+                                    '<tr><td>' + _('Bonus') + '<br>- ' + _('Sum of 7 and Sum of 24') + '<br>- ' + _('Sum of 24 in 7 Tiles') + '</td><td>60</td></tr>' +
+                                '</tbody>' +
+                            '</table>' +
+                        '</div>' +
+                    '</div>';
         },
 
         highlightCombos: function( args )
