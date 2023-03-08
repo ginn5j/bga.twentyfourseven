@@ -47,6 +47,8 @@ function (dojo, declare) {
 
         setup: function( gamedatas )
         {
+            this.setupTypes();
+
             this.setupGameSummary( gamedatas );
 
             this.tf7Dialog = new ebg.popindialog();
@@ -127,6 +129,27 @@ function (dojo, declare) {
             this.addActionButton( 'tf7_help_button', _('Help'), 'onHelp', 'tf7_game_summary', false, 'gray');
         },
 
+        /*
+            setupTypes:
+
+            Sets up types used in the game
+        */
+        setupTypes: function()
+        {
+            // Combo Types
+            this.comboTypes = {
+                "sum-of-7"  : { "name" : _("Sum of 7") , "20" : "",  "40" : " x2" },
+                "sum-of-24" : { "name" : _("Sum of 24"), "40" : "",  "80" : " x2" },
+                "run-of-3"  : { "name" : _("Run of 3") , "30" : "",  "60" : " x2" },
+                "run-of-4"  : { "name" : _("Run of 4") , "40" : "",  "80" : " x2" },
+                "run-of-5"  : { "name" : _("Run of 5") , "50" : "", "100" : " x2" },
+                "run-of-6"  : { "name" : _("Run of 6") , "60" : "", "120" : " x2" },
+                "set-of-3"  : { "name" : _("Set of 3") , "50" : "", "100" : " x2" },
+                "set-of-4"  : { "name" : _("Set of 4") , "60" : "", "120" : " x2" },
+                "bonus"     : { "name" : _("Bonus")    , "60" : "", "120" : " x2" }
+            };
+        },
+    
         ///////////////////////////////////////////////////
         //// Game & client states
 
@@ -261,6 +284,14 @@ function (dojo, declare) {
             this.playables = [];
         },
 
+        /*
+            Creates combo description for display.
+        */
+        comboDescription: function( type, minutes )
+        {
+            return this.comboTypes[ type ][ "name" ] + this.comboTypes[ type ][ minutes ];
+        },
+    
         helpDialogHTML: function()
         {
             return '<div class="tf7_help_html" id="tf7_help_html">' +
@@ -309,7 +340,7 @@ function (dojo, declare) {
                         "x" : args.x,
                         "y" : args.y,
                         "player_id" : args.player_id,
-                        "description" : combo.description,
+                        "description" : this.comboDescription( type, combo.minutes ),
                         "minutes" : combo.minutes,
                         "tiles" : combo.tiles
                     });
