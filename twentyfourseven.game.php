@@ -544,8 +544,8 @@ class TwentyFourSeven extends Table
     }
 
     /*
-     * Get the lines at (x,y). When (x,y) does not contain a tile (value > 0),
-     * no lines are returned.
+     * Get the lines at (x,y). Each line is composed of the target space (x,y) 
+     * and any adjacent spaces filled with a tile (value > 0).
      */
     function getLinesAtSpace( $x, $y )
     {
@@ -558,15 +558,20 @@ class TwentyFourSeven extends Table
     }
 
     /*
-     * Gets the horizontal line at (x,y). When (x,y) does not contain a tile
-     * (value > 0), no line is returned.
+     * Gets the horizontal line at (x,y). The line is the target space (x,y) 
+     * plus any adjacent spaces filled with a tile (value > 0).
      */
     function getHLineAtSpace( $x, $y )
     {
         self::DbQuery( "SET @x := $x, @y := $y" );
         return self::getObjectListFromDB( "SELECT B.board_x x, B.board_y y, B.board_value value
                                             FROM (
-                                                SELECT board_x, board_y, board_value, @exp := @exp + 1 exp, CASE WHEN board_value > 0 THEN @act := @act + 1 ELSE @act END act
+                                                SELECT 
+                                                    board_x, 
+                                                    board_y, 
+                                                    board_value, 
+                                                    @exp := @exp + 1 exp, 
+                                                    CASE WHEN (board_value > 0 OR (board_x = @x AND board_y = @y)) THEN @act := @act + 1 ELSE @act END act
                                                 FROM board b join (SELECT @exp := 0, @act := 0) c
                                                 WHERE board_y = @y
                                                 ORDER BY board_x, board_y
@@ -575,25 +580,30 @@ class TwentyFourSeven extends Table
                                                 SELECT COUNT(*) tep FROM board WHERE board_x <= @x AND board_y = @y
                                             ) E
                                             JOIN (
-                                                SELECT COUNT(*) tap FROM board WHERE board_x <= @x AND board_y = @y AND board_value > 0
+                                                SELECT COUNT(*) tap FROM board WHERE board_x <= @x AND board_y = @y AND (board_value > 0 OR (board_x = @x AND board_y = @y))
                                             ) A
                                             WHERE
-                                                B.board_value > 0 AND -- Space has a tile
+                                                (B.board_value > 0 OR (B.board_x = @x AND B.board_y = @y)) AND -- Space has a tile or is the target space
                                                 E.tep > 0 AND A.tap > 0 AND -- Tile expected and actual positions exist
                                                 (B.exp - E.tep) = (B.act - A.tap) -- Relative expected position == Actual expected position
                                             ORDER BY B.board_x, B.board_y " );
     }
 
     /*
-     * Gets the vertical line at (x,y). When (x,y) does not contain a tile
-     * (value > 0), no line is returned.
+     * Gets the vertical line at (x,y). The line is the target space (x,y) 
+     * plus any adjacent spaces filled with a tile (value > 0).
      */
     function getVLineAtSpace( $x, $y )
     {
         self::DbQuery( "SET @x := $x, @y := $y" );
         return self::getObjectListFromDB( "SELECT B.board_x x, B.board_y y, B.board_value value
                                             FROM (
-                                                SELECT board_x, board_y, board_value, @exp := @exp + 1 exp, CASE WHEN board_value > 0 THEN @act := @act + 1 ELSE @act END act
+                                                SELECT 
+                                                    board_x, 
+                                                    board_y, 
+                                                    board_value, 
+                                                    @exp := @exp + 1 exp, 
+                                                    CASE WHEN (board_value > 0 OR (board_x = @x AND board_y = @y)) THEN @act := @act + 1 ELSE @act END act
                                                 FROM board b join (SELECT @exp := 0, @act := 0) c
                                                 WHERE board_x = @x
                                                 ORDER BY board_x, board_y
@@ -602,25 +612,30 @@ class TwentyFourSeven extends Table
                                                 SELECT COUNT(*) tep FROM board WHERE board_x = @x AND board_y <= @y
                                             ) E
                                             JOIN (
-                                                SELECT COUNT(*) tap FROM board WHERE board_x = @x AND board_y <= @y AND board_value > 0
+                                                SELECT COUNT(*) tap FROM board WHERE board_x = @x AND board_y <= @y AND (board_value > 0 OR (board_x = @x AND board_y = @y))
                                             ) A
                                             WHERE
-                                                B.board_value > 0 AND -- Space has a tile
+                                                (B.board_value > 0 OR (B.board_x = @x AND B.board_y = @y)) AND -- Space has a tile or is the target space
                                                 E.tep > 0 AND A.tap > 0 AND -- Tile expected and actual positions exist
                                                 (B.exp - E.tep) = (B.act - A.tap) -- Relative expected position == Actual expected position
                                             ORDER BY B.board_x, B.board_y " );
     }
 
     /*
-     * Gets the left diagonal (NW->SE) line at (x,y). When (x,y) does not
-     * contain a tile (value > 0), no line is returned.
+     * Gets the left diagonal (NW->SE) line at (x,y). The line is the target space (x,y) 
+     * plus any adjacent spaces filled with a tile (value > 0).
      */
     function getLDLineAtSpace( $x, $y )
     {
         self::DbQuery( "SET @x := $x, @y := $y" );
         return self::getObjectListFromDB( "SELECT B.board_x x, B.board_y y, B.board_value value
                                             FROM (
-                                                SELECT board_x, board_y, board_value, @exp := @exp + 1 exp, CASE WHEN board_value > 0 THEN @act := @act + 1 ELSE @act END act
+                                                SELECT 
+                                                    board_x, 
+                                                    board_y, 
+                                                    board_value, 
+                                                    @exp := @exp + 1 exp, 
+                                                    CASE WHEN (board_value > 0 OR (board_x = @x AND board_y = @y)) THEN @act := @act + 1 ELSE @act END act
                                                 FROM board b join (SELECT @exp := 0, @act := 0) c
                                                 WHERE board_x = (@x - @y) + board_y AND board_y = (@y - @x) + board_x
                                                 ORDER BY board_x, board_y
@@ -629,25 +644,30 @@ class TwentyFourSeven extends Table
                                                 SELECT COUNT(*) tep FROM board WHERE board_x = (@x - @y) + board_y AND board_y = (@y - @x) + board_x AND board_x <= @x AND board_y <= @y
                                             ) E
                                             JOIN (
-                                                SELECT COUNT(*) tap FROM board WHERE board_x = (@x - @y) + board_y AND board_y = (@y - @x) + board_x AND board_x <= @x AND board_y <= @y AND board_value > 0
+                                                SELECT COUNT(*) tap FROM board WHERE board_x = (@x - @y) + board_y AND board_y = (@y - @x) + board_x AND board_x <= @x AND board_y <= @y AND (board_value > 0 OR (board_x = @x AND board_y = @y))
                                             ) A
                                             WHERE
-                                                B.board_value > 0 AND -- Space has a tile
+                                                (B.board_value > 0 OR (B.board_x = @x AND B.board_y = @y)) AND -- Space has a tile or is the target space
                                                 E.tep > 0 AND A.tap > 0 AND -- Tile expected and actual positions exist
                                                 (B.exp - E.tep) = (B.act - A.tap) -- Relative expected position == Actual expected position
                                             ORDER BY B.board_x, B.board_y " );
     }
 
     /*
-     * Gets the right diagonal (SW->NE) line at (x,y). When (x,y) does not
-     * contain a tile (value > 0), no line is returned.
+     * Gets the right diagonal (SW->NE) line at (x,y). The line is the target space (x,y) 
+     * plus any adjacent spaces filled with a tile (value > 0).
      */
     function getRDLineAtSpace( $x, $y )
     {
         self::DbQuery( "SET @x := $x, @y := $y") ;
         return self::getObjectListFromDB( "SELECT B.board_x x, B.board_y y, B.board_value value
                                             FROM (
-                                                SELECT board_x, board_y, board_value, @exp := @exp + 1 exp, CASE WHEN board_value > 0 THEN @act := @act + 1 ELSE @act END act
+                                                SELECT 
+                                                    board_x, 
+                                                    board_y, 
+                                                    board_value, 
+                                                    @exp := @exp + 1 exp, 
+                                                    CASE WHEN (board_value > 0 OR (board_x = @x AND board_y = @y)) THEN @act := @act + 1 ELSE @act END act
                                                 FROM board b JOIN (SELECT @exp := 0, @act := 0) c
                                                 WHERE board_x = (@x + @y) - board_y AND board_y = (@x + @y) - board_x
                                                 ORDER BY board_x, board_y
@@ -656,10 +676,10 @@ class TwentyFourSeven extends Table
                                                 SELECT COUNT(*) tep FROM board WHERE board_x = (@x + @y) - board_y AND board_y = (@x + @y) - board_x AND board_x <= @x AND board_y >= @y
                                             ) E
                                             JOIN (
-                                                SELECT COUNT(*) tap FROM board WHERE board_x = (@x + @y) - board_y AND board_y = (@x + @y) - board_x AND board_x <= @x AND board_y >= @y AND board_value > 0
+                                                SELECT COUNT(*) tap FROM board WHERE board_x = (@x + @y) - board_y AND board_y = (@x + @y) - board_x AND board_x <= @x AND board_y >= @y AND (board_value > 0 OR (board_x = @x AND board_y = @y))
                                             ) A
                                             WHERE
-                                                B.board_value > 0 AND -- Space has a tile
+                                                (B.board_value > 0 OR (B.board_x = @x AND B.board_y = @y)) AND -- Space has a tile or is the target space
                                                 E.tep > 0 AND A.tap > 0 AND -- Tile expected and actual positions exist
                                                 (B.exp - E.tep) = (B.act - A.tap) -- Relative expected position == Actual expected position
                                             ORDER BY B.board_x, B.board_y " );
@@ -765,9 +785,6 @@ class TwentyFourSeven extends Table
         // Can't play if the space has something in it
         if( ! is_null( $board_value ) ) return 0;
 
-        // Put the value on the board at (x,y)
-        self::DbQuery( "UPDATE board SET board_value = $value WHERE board_x = $x AND board_y = $y" );
-
         // Get the lines at (x,y)
         $lines = self::getLinesAtSpace( $x, $y );
 
@@ -778,16 +795,17 @@ class TwentyFourSeven extends Table
             $current_sum = 0;
             foreach( $line as $space )
             {
-                $current_sum += $space['value'];
+                /*
+                    Add up the values on the spaces. For the target space,
+                    use the value passed in since the target space is empty.
+                */
+                $current_sum += ($space['x'] == $x && $space['y'] == $y) ? $value : $space['value'];
             }
             unset( $space );
 
             if ($current_sum > $largest_sum) $largest_sum = $current_sum;
         }
         unset( $line );
-
-        // Remove the value from the board at (x,y)
-        self::DbQuery( "UPDATE board SET board_value = NULL WHERE board_x = $x AND board_y = $y" );
 
         // Return the largest sum
         return $largest_sum;
